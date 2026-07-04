@@ -19,7 +19,6 @@
             padding: 16px;
         }
 
-        /* ─── Header ─────────────────────────────────── */
         .header {
             display: flex;
             justify-content: space-between;
@@ -70,7 +69,6 @@
             color: #9ca3af;
         }
 
-        /* ─── Search ────────────────────────────────── */
         .search-box {
             display: flex;
             gap: 8px;
@@ -117,7 +115,6 @@
             transform: scale(0.95);
         }
 
-        /* ─── Categories ────────────────────────────── */
         .categories {
             display: flex;
             gap: 8px;
@@ -154,31 +151,36 @@
             transform: scale(0.95);
         }
 
-        /* ─── Premium Banner ───────────────────────── */
         .premium-banner {
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(244, 114, 182, 0.1));
             border: 1px solid rgba(139, 92, 246, 0.15);
             border-radius: 16px;
-            padding: 16px 20px;
+            padding: 20px;
             margin-bottom: 20px;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
         }
 
         .premium-banner p {
-            font-size: 13px;
+            font-size: 14px;
             color: #c4b5fd;
+            margin: 0;
         }
 
         .premium-banner p strong {
             color: #f472b6;
         }
 
+        .plan-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         .btn-premium {
-            background: linear-gradient(135deg, #f59e0b, #f472b6);
             border: none;
             padding: 10px 24px;
             border-radius: 12px;
@@ -188,13 +190,25 @@
             cursor: pointer;
             transition: 0.2s;
             text-decoration: none;
+            display: inline-block;
         }
 
         .btn-premium:active {
             transform: scale(0.95);
         }
 
-        /* ─── Manga Grid ────────────────────────────── */
+        .btn-premium.basic {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .btn-premium.premium {
+            background: linear-gradient(135deg, #f59e0b, #f472b6);
+        }
+
+        .btn-premium.manage {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -284,7 +298,6 @@
             font-weight: 500;
         }
 
-        /* ─── Reader ────────────────────────────────── */
         #reader {
             display: none;
             position: fixed;
@@ -399,7 +412,6 @@
             cursor: not-allowed;
         }
 
-        /* ─── Toast ──────────────────────────────────── */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -447,7 +459,6 @@
             margin-bottom: 12px;
         }
 
-        /* ─── Responsive ────────────────────────────── */
         @media (max-width: 500px) {
             .header {
                 flex-direction: column;
@@ -466,6 +477,9 @@
             .premium-banner {
                 flex-direction: column;
                 text-align: center;
+            }
+            .plan-buttons {
+                justify-content: center;
             }
         }
     </style>
@@ -500,12 +514,17 @@
         <button class="cat-btn" data-cat="sports">🏀 Sports</button>
     </div>
 
-    <!-- ═══ PREMIUM BANNER ═══ -->
+    <!-- ═══ PREMIUM BANNER (Two Plans) ═══ -->
     <div class="premium-banner" id="premiumBanner">
-        <p>🔓 <strong>Premium</strong> unlocks ALL manga + 50+ exclusive series</p>
-        <a href="https://rzp.io/rzp/5DiyqYn" target="_blank" class="btn-premium" id="upgradeBtn">
-            ⭐ Go Premium — ₹99/mo
-        </a>
+        <p>🔓 <strong>Choose Your Plan</strong> — Unlock ALL manga!</p>
+        <div class="plan-buttons">
+            <a href="https://rzp.io/rzp/M6KAphX" target="_blank" class="btn-premium basic">
+                ⭐ Basic — ₹49/mo
+            </a>
+            <a href="https://rzp.io/rzp/8cIIBwr" target="_blank" class="btn-premium premium">
+                ⭐ Premium — ₹99/mo
+            </a>
+        </div>
     </div>
 
     <!-- ═══ MANGA GRID ═══ -->
@@ -579,7 +598,6 @@
         // ────────────────────────────────────────────────────────
         //  🧠 STATE
         // ────────────────────────────────────────────────────────
-        // Check if user is premium (stored in localStorage)
         let isPremium = localStorage.getItem('manga_premium') === 'true';
         let currentManga = null;
         let currentPage = 0;
@@ -598,7 +616,6 @@
         const pageCounter = document.getElementById('pageCounter');
         const closeReader = document.getElementById('closeReader');
         const premiumStatusBtn = document.getElementById('premiumStatusBtn');
-        const upgradeBtn = document.getElementById('upgradeBtn');
         const premiumBanner = document.getElementById('premiumBanner');
         const toast = document.getElementById('toast');
 
@@ -645,7 +662,7 @@
                     const manga = MANGA_DB.find(m => m.id === id);
                     if (manga) {
                         if (manga.premium && !isPremium) {
-                            showToast('🔒 Premium manga. Subscribe to unlock!');
+                            showToast('🔒 Subscribe to unlock premium manga!');
                             return;
                         }
                         openReader(manga);
@@ -734,19 +751,38 @@
             if (isPremium) {
                 premiumStatusBtn.textContent = '⭐ Premium';
                 premiumStatusBtn.className = 'premium-badge';
-                premiumBanner.style.display = 'none';
+                premiumBanner.innerHTML = `
+                        <p>✅ <strong>You're Premium!</strong> Enjoy all manga.</p>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <span style="color: #6b7280; font-size: 14px;">Active plan: ₹99/mo</span>
+                            <a href="https://rzp.io/rzp/8cIIBwr" target="_blank" class="btn-premium manage">
+                                📧 Manage
+                            </a>
+                        </div>
+                    `;
+                premiumBanner.style.display = 'flex';
                 showToast('🎉 Welcome back, Premium user!');
             } else {
                 premiumStatusBtn.textContent = '⭐ Free';
                 premiumStatusBtn.className = 'premium-badge free';
+                premiumBanner.innerHTML = `
+                        <p>🔓 <strong>Choose Your Plan</strong> — Unlock ALL manga!</p>
+                        <div class="plan-buttons">
+                            <a href="https://rzp.io/rzp/M6KAphX" target="_blank" class="btn-premium basic">
+                                ⭐ Basic — ₹49/mo
+                            </a>
+                            <a href="https://rzp.io/rzp/8cIIBwr" target="_blank" class="btn-premium premium">
+                                ⭐ Premium — ₹99/mo
+                            </a>
+                        </div>
+                    `;
                 premiumBanner.style.display = 'flex';
             }
-            // Re-render grid to update locks
             filterManga();
         }
 
         // ────────────────────────────────────────────────────────
-        //  🔓 SIMULATE PREMIUM (For testing after payment)
+        //  🔓 SIMULATE PREMIUM
         // ────────────────────────────────────────────────────────
         function activatePremium() {
             isPremium = true;
@@ -759,13 +795,11 @@
         //  🎮 EVENT LISTENERS
         // ────────────────────────────────────────────────────────
 
-        // Search
         searchBtn.addEventListener('click', filterManga);
         searchInput.addEventListener('keyup', (e) => {
             if (e.key === 'Enter') filterManga();
         });
 
-        // Categories
         categoriesEl.addEventListener('click', (e) => {
             const btn = e.target.closest('.cat-btn');
             if (!btn) return;
@@ -775,7 +809,6 @@
             filterManga();
         });
 
-        // Reader navigation
         prevBtn.addEventListener('click', () => goToPage(-1));
         nextBtn.addEventListener('click', () => goToPage(1));
 
@@ -786,7 +819,6 @@
             if (e.key === 'Escape') closeReader.click();
         });
 
-        // Touch swipe
         let touchStartX = 0;
         readerEl.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
@@ -799,7 +831,6 @@
             }
         });
 
-        // Close reader
         closeReader.addEventListener('click', () => {
             readerEl.classList.remove('open');
             document.body.style.overflow = '';
@@ -809,13 +840,11 @@
         //  🚀 INIT
         // ────────────────────────────────────────────────────────
 
-        // Check URL params for premium activation (for testing)
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('premium') === 'true') {
             activatePremium();
         }
 
-        // Also listen for postMessage (if opened from Razorpay)
         window.addEventListener('message', (event) => {
             if (event.data && event.data.premium === true) {
                 activatePremium();
@@ -825,9 +854,10 @@
         updatePremiumUI();
         renderGrid(MANGA_DB);
 
-        console.log('📚 Manga+ loaded!');
-        console.log('🔗 Payment Link: https://rzp.io/rzp/5DiyqYn');
+        console.log('📚 Manga+ loaded with TWO plans!');
+        console.log('🔗 Basic (₹49): https://rzp.io/rzp/M6KAphX');
+        console.log('🔗 Premium (₹99): https://rzp.io/rzp/8cIIBwr');
         console.log('💡 To test premium, add ?premium=true to URL');
     </script>
 </body>
-</html>
+</html> 
